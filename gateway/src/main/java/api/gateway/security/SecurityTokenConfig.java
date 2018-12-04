@@ -24,6 +24,8 @@ public class SecurityTokenConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println("Blank configured");
+        System.out.println("JWT config is: " +  jwtConfig.getUri().toString());
         http
                 .csrf().disable()
                 // make sure we use stateless session; session won't be used to store user's state.
@@ -42,11 +44,13 @@ public class SecurityTokenConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // allow all who are accessing "auth" service
                 .antMatchers(HttpMethod.POST,  jwtConfig.getUri()).permitAll()
+                .antMatchers(HttpMethod.GET,  "/client/**").permitAll()
                 .antMatchers("/gateway/hello").permitAll()
 
 
+
                 // must be an admin if trying to access admin area (authentication is also required here)
-                //.antMatchers("/client" + "/admin/**").hasRole("ADMIN")
+                .antMatchers("/client" + "/admin/**").hasRole("ADMIN")
 
                 // Any other request must be authenticated
                 .anyRequest().authenticated();

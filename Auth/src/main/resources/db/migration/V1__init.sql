@@ -4,70 +4,69 @@ CREATE TABLE Users
 	FirstName nvarchar(50) NOT NULL,
 	LastName nvarchar(50) NOT NULL,
 	Email nvarchar(50) NOT NULL,
-	[Password] nvarchar(50) NOT NULL,
-	Phone nvarchar(15) NOT NULL,
+	[Password] nvarchar(100) NOT NULL,
+	Phone nvarchar(20) NOT NULL,
 	CompanySize nvarchar(50) NOT NULL,
-	[Status] [bit] NOT NULL
+	[IsDeleted] [bit] DEFAULT 0
 )
 
-CREATE TABLE User_Application
+CREATE TABLE UserApplications
 (
 	[ID] [INT] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[User_ID] [INT] NOT NULL,
-	[App_ID] [INT] NOT NULL,
-	CONSTRAINT FK_User FOREIGN KEY ([User_ID]) REFERENCES [Users](ID),
+	[User_ID] [INT] FOREIGN KEY REFERENCES Users(ID),
+	[App_ID] nvarchar(100) NOT NULL,
+	[App_Key] nvarchar(100) NOT NULL
 )
 
-CREATE TABLE Client
+CREATE TABLE UserClients
 (
 	[ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[User_ID] INT NOT NULL,
-	Client_ID INT NOT NULL,
-	ClientKey INT NOT NULL
-	CONSTRAINT FK_ClientUser FOREIGN KEY ([User_ID]) REFERENCES [Users](ID),
+	[User_ID] [INT] FOREIGN KEY REFERENCES Users(ID),
+	Client_ID nvarchar(100) NOT NULL,
+	Client_Key nvarchar(100) NOT NULL
 )
 GO
 
-CREATE PROCEDURE [dbo].[uspCreate_User]
+CREATE PROCEDURE [dbo].[uspCreateUser]
 (
 	@firstname nvarchar(50),
 	@lastname nvarchar(50),
 	@email nvarchar(50),
-	@password nvarchar(50),
-	@phone nvarchar(15),
+	@password nvarchar(100),
+	@phone nvarchar(20),
 	@company_size nvarchar(50),
-	@clientKey INT,
-	@clientId INT,
-	@status BIT
+	@clientId nvarchar(100),
+	@clientKey nvarchar(100),
+	@appId nvarchar(100),
+	@appKey nvarchar(100)
 )
 AS
 BEGIN TRANSACTION
 
-DECLARE @userId int
+    DECLARE @userId int
 
 	SELECT @userId = 0
 
+    SELECT @userId = ID from Users where Email = @email
+
 	IF(@userId > 0)
-	UPDATE Users SET FirstName = @firstname, LastName = @lastname, Email = @email,
-	Phone = @phone, CompanySize = @company_size, [Status] = @status
+	    UPDATE Users SET FirstName = @firstname, LastName = @lastname, Email = @email,
+	    Phone = @phone, CompanySize = @company_size
 	ELSE
 
-	SELECT @userId = ID from Users where FirstName = @firstname
 	BEGIN
-	INSERT INTO Users(FirstName,LastName,Email,Phone,CompanySize,[Password],[Status])
-	VALUES(@firstname,@lastname,@email,@phone,@company_size,@password,@status)
-	SELECT @userId = SCOPE_IDENTITY()
+        INSERT INTO Users(FirstName,LastName,Email,Phone,CompanySize,[Password])
+        VALUES(@firstname,@lastname,@email,@phone,@company_size,@password)
+        SELECT @userId = SCOPE_IDENTITY()
 	END
 
-	SELECT @clientId = ID from Client where ClientKey = @clientKey
-	IF(@clientId > 0)
-	BEGIN
-	INSERT INTO Client([User_ID],Client_ID,ClientKey)
-	VALUES(@userId,@clientId,@clientKey)
-	SELECT  @userId= SCOPE_IDENTITY()
-	END
 
-	INSERT INTO User_Application([User_ID],App_ID)
-	VALUES(@userId,@clientId)
+	INSERT INTO UserClients([User_ID],Client_ID,Client_Key)
+	    VALUES(@userId,@clientId,@clientKey)
+
+
+
+	INSERT INTO User_Applications([User_ID], App_ID, App_Key)
+	    VALUES(@userId, @appId, @appKey)
 COMMIT
-
+GO

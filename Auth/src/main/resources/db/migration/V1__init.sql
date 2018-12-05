@@ -4,27 +4,26 @@ CREATE TABLE Users
 	FirstName nvarchar(50) NOT NULL,
 	LastName nvarchar(50) NOT NULL,
 	Email nvarchar(50) NOT NULL,
-	[Password] nvarchar(50) NOT NULL,
-	Phone nvarchar(15) NOT NULL,
+	[Password] nvarchar(100) NOT NULL,
+	Phone nvarchar(20) NOT NULL,
 	CompanySize nvarchar(50) NOT NULL,
-	[Status] [bit] NOT NULL
+	[Status] [bit] DEFAULT 0
 )
 
-CREATE TABLE User_Application
+CREATE TABLE UserApplications
 (
 	[ID] [INT] NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[User_ID] [INT] NOT NULL,
-	[App_ID] [INT] NOT NULL,
-	CONSTRAINT FK_User FOREIGN KEY ([User_ID]) REFERENCES [Users](ID),
+	[User_ID] [INT] FOREIGN KEY REFERENCES Users(ID),
+	[App_ID] nvarchar(100) NOT NULL,
+	[App_Key] nvarchar(100) NOT NULL
 )
 
-CREATE TABLE Client
+CREATE TABLE UserClients
 (
 	[ID] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-	[User_ID] INT NOT NULL,
-	Client_ID INT NOT NULL,
-	ClientKey INT NOT NULL
-	CONSTRAINT FK_ClientUser FOREIGN KEY ([User_ID]) REFERENCES [Users](ID),
+	[User_ID] [INT] FOREIGN KEY REFERENCES Users(ID),
+	Client_ID nvarchar(100) NOT NULL,
+	ClientKey nvarchar(100) NOT NULL
 )
 GO
 
@@ -33,12 +32,9 @@ CREATE PROCEDURE [dbo].[uspCreate_User]
 	@firstname nvarchar(50),
 	@lastname nvarchar(50),
 	@email nvarchar(50),
-	@password nvarchar(50),
-	@phone nvarchar(15),
-	@company_size nvarchar(50),
-	@clientKey INT,
-	@clientId INT,
-	@status BIT
+	@password nvarchar(100),
+	@phone nvarchar(20),
+	@company_size nvarchar(50)
 )
 AS
 BEGIN TRANSACTION
@@ -49,13 +45,13 @@ DECLARE @userId int
 
 	IF(@userId > 0)
 	UPDATE Users SET FirstName = @firstname, LastName = @lastname, Email = @email,
-	Phone = @phone, CompanySize = @company_size, [Status] = @status
+	Phone = @phone, CompanySize = @company_size
 	ELSE
 
 	SELECT @userId = ID from Users where FirstName = @firstname
 	BEGIN
-	INSERT INTO Users(FirstName,LastName,Email,Phone,CompanySize,[Password],[Status])
-	VALUES(@firstname,@lastname,@email,@phone,@company_size,@password,@status)
+	INSERT INTO Users(FirstName,LastName,Email,Phone,CompanySize,[Password])
+	VALUES(@firstname,@lastname,@email,@phone,@company_size,@password)
 	SELECT @userId = SCOPE_IDENTITY()
 	END
 

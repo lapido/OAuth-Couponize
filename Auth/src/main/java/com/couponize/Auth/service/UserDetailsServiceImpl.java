@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service   // It has to be annotated with @Service.
-
 public class UserDetailsServiceImpl implements UserDetailsService{
     @Autowired
     private BCryptPasswordEncoder encoder;

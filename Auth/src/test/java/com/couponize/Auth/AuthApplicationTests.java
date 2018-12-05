@@ -1,4 +1,4 @@
-package com.couponize.Auth.Auth;
+package com.couponize.Auth;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

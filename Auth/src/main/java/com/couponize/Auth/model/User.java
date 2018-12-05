@@ -1,27 +1,17 @@
 package com.couponize.Auth.model;
 
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-
-public class UserSignup {
+public class User extends BaseEntity {
+    private int companySize;
 
     private String firstName;
-    private String lastName;
-    @Email
-    @NotBlank(message = "required")
-    @Length(min = 6, max = 50)
-    private String email;
-    @Pattern(regexp = "^[a-zA-Z]\\w{3,14}$")
-    private String password;
-    private String phoneNumber;
 
+    private String lastName;
+    private String email;
+    private String password;
+    private String phone;
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -50,22 +40,32 @@ public class UserSignup {
         this.password = password;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public int getCompanySize() {
+        return companySize;
     }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setCompanySize(int companySize) {
+        this.companySize = companySize;
+    }
+
 
     @Override
     public String toString() {
-        return "UserSignup{" +
-                "firstName='" + firstName + '\'' +
+        return "User{" +
+                "companySize=" + companySize +
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 }
